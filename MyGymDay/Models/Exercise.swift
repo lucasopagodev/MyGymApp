@@ -9,8 +9,8 @@ import SwiftData
 import Foundation
 
 @Model
-class Exercise {
-    var id: UUID
+class Exercise: Identifiable {
+    @Attribute(.unique) var id: UUID
     var name: String
     var repetitions: String // e.g., "8-10" or "12"
     var sets: Int

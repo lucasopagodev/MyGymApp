@@ -9,7 +9,8 @@ import SwiftUI
 
 struct WorkoutDetailView: View {
     var workout: Workout
-    @ObservedObject var viewModel: GymViewModel
+    @EnvironmentObject var viewModel: GymViewModel
+    @Environment(\.modelContext) private var modelContext
     @State private var isAddingExercise = false
 
     var body: some View {
@@ -19,6 +20,12 @@ struct WorkoutDetailView: View {
                     Text(exercise.name).font(.headline)
                     Text("Reps: \(exercise.repetitions), Sets: \(exercise.sets), Rest: \(exercise.restTime)s")
                         .font(.subheadline)
+                }
+            }
+            .onDelete { indexSet in
+                indexSet.forEach { index in
+                    let exerciseToDelete = workout.exercises[index]
+                    viewModel.deleteExercise(exerciseToDelete, modelContext: modelContext)
                 }
             }
         }
@@ -31,7 +38,7 @@ struct WorkoutDetailView: View {
             }
         }
         .sheet(isPresented: $isAddingExercise) {
-            AddExerciseView(workout: workout, viewModel: viewModel)
+            AddExerciseView(workout: workout)
         }
     }
 }
@@ -40,6 +47,8 @@ struct WorkoutDetailView_Previews: PreviewProvider {
     static var previews: some View {
         let workout = Workout(name: "Sample Workout")
         workout.exercises.append(Exercise(name: "Push-Ups", repetitions: "10-12", sets: 3, restTime: 60))
-        return WorkoutDetailView(workout: workout, viewModel: GymViewModel())
+        return WorkoutDetailView(workout: workout)
+            .environmentObject(GymViewModel())
+            .modelContainer(for: [Workout.self, Exercise.self])
     }
 }

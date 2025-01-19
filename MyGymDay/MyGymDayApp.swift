@@ -10,9 +10,12 @@ import SwiftData
 
 @main
 struct MyGymDayApp: App {
+    @StateObject private var viewModel = GymViewModel()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(viewModel)
                 .modelContainer(for: [Workout.self, Exercise.self])
         }
     }

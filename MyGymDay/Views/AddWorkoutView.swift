@@ -5,11 +5,11 @@
 //  Created by Lucas Rodrigues on 09/01/25.
 //
 import SwiftUI
-import SwiftData
 
 struct AddWorkoutView: View {
-    @Environment(\ .dismiss) var dismiss
-    @ObservedObject var viewModel: GymViewModel
+    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var viewModel: GymViewModel
+    @Environment(\.modelContext) private var modelContext
     @State private var workoutName = ""
 
     var body: some View {
@@ -26,7 +26,7 @@ struct AddWorkoutView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
-                        viewModel.addWorkout(name: workoutName)
+                        viewModel.addWorkout(name: workoutName, modelContext: modelContext)
                         dismiss()
                     }
                     .disabled(workoutName.isEmpty)
@@ -38,6 +38,8 @@ struct AddWorkoutView: View {
 
 struct AddWorkoutView_Previews: PreviewProvider {
     static var previews: some View {
-        AddWorkoutView(viewModel: GymViewModel())
+        AddWorkoutView()
+            .environmentObject(GymViewModel())
+            .modelContainer(for: [Workout.self, Exercise.self])
     }
 }

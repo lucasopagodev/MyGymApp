@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "V2 Logo 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -12,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "V2 Logo.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -23,6 +25,7 @@
           "value" : "tinted"
         }
       ],
+      "filename" : "V2 Logo Tinted.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

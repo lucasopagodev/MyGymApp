@@ -8,19 +8,22 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var viewModel = GymViewModel()
+    @EnvironmentObject var viewModel: GymViewModel
+    @Environment(\.modelContext) private var modelContext
     @State private var isAddingWorkout = false
 
     var body: some View {
         NavigationView {
             List {
                 ForEach(viewModel.workouts) { workout in
-                    NavigationLink(destination: WorkoutDetailView(workout: workout, viewModel: viewModel)) {
+                    NavigationLink(destination: WorkoutDetailView(workout: workout)) {
                         Text(workout.name)
                     }
                 }
                 .onDelete { indexSet in
-                    indexSet.map { viewModel.workouts[$0] }.forEach(viewModel.deleteWorkout)
+                    indexSet.map { viewModel.workouts[$0] }.forEach {
+                        viewModel.deleteWorkout($0, modelContext: modelContext)
+                    }
                 }
             }
             .navigationTitle("Workouts")
@@ -32,7 +35,10 @@ struct ContentView: View {
                 }
             }
             .sheet(isPresented: $isAddingWorkout) {
-                AddWorkoutView(viewModel: viewModel)
+                AddWorkoutView()
+            }
+            .onAppear {
+                viewModel.loadWorkouts(modelContext: modelContext)
             }
         }
     }
@@ -41,5 +47,7 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .environmentObject(GymViewModel())
+            .modelContainer(for: [Workout.self, Exercise.self])
     }
 }

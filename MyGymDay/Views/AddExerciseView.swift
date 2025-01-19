@@ -4,14 +4,13 @@
 //
 //  Created by Lucas Rodrigues on 09/01/25.
 //
-
 import SwiftUI
-import SwiftData
 
 struct AddExerciseView: View {
     var workout: Workout
-    @ObservedObject var viewModel: GymViewModel
-    @Environment(\ .dismiss) var dismiss
+    @EnvironmentObject var viewModel: GymViewModel
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var modelContext
     @State private var exerciseName = ""
     @State private var repetitions = ""
     @State private var sets = 1
@@ -34,7 +33,14 @@ struct AddExerciseView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
-                        viewModel.addExercise(to: workout, name: exerciseName, repetitions: repetitions, sets: sets, restTime: restTime)
+                        viewModel.addExercise(
+                            to: workout,
+                            name: exerciseName,
+                            repetitions: repetitions,
+                            sets: sets,
+                            restTime: restTime,
+                            modelContext: modelContext
+                        )
                         dismiss()
                     }
                     .disabled(exerciseName.isEmpty || repetitions.isEmpty)
@@ -47,6 +53,8 @@ struct AddExerciseView: View {
 struct AddExerciseView_Previews: PreviewProvider {
     static var previews: some View {
         let workout = Workout(name: "Sample Workout")
-        return AddExerciseView(workout: workout, viewModel: GymViewModel())
+        return AddExerciseView(workout: workout)
+            .environmentObject(GymViewModel())
+            .modelContainer(for: [Workout.self, Exercise.self])
     }
 }
