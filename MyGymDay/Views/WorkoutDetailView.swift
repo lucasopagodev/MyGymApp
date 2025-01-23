@@ -12,6 +12,8 @@ struct WorkoutDetailView: View {
     @EnvironmentObject var viewModel: GymViewModel
     @Environment(\.modelContext) private var modelContext
     @State private var isAddingExercise = false
+    @State private var isEditingExercise = false
+    @State private var selectedExercise: Exercise? = nil
 
     var body: some View {
         List {

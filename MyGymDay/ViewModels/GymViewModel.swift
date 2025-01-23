@@ -52,6 +52,17 @@ class GymViewModel: ObservableObject {
             }
         }
     }
+    
+    func editExercise(_ exercise: Exercise, name: String, repetitions: String, sets: Int, restTime: Int, modelContext: ModelContext) {
+        // Atualiza os dados do exercício
+        exercise.name = name
+        exercise.repetitions = repetitions
+        exercise.sets = sets
+        exercise.restTime = restTime
+        
+        // Salva as mudanças no contexto
+        saveContext(modelContext: modelContext)
+    }
 
     private func saveContext(modelContext: ModelContext) {
         do {

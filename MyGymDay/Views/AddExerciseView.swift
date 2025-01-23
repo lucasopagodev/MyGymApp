@@ -15,6 +15,7 @@ struct AddExerciseView: View {
     @State private var repetitions = ""
     @State private var sets = 1
     @State private var restTime = 30
+    var exerciseToEdit: Exercise?
 
     var body: some View {
         NavigationView {
@@ -24,7 +25,15 @@ struct AddExerciseView: View {
                 Stepper("Sets: \(sets)", value: $sets, in: 1...10)
                 Stepper("Rest Time: \(restTime) seconds", value: $restTime, in: 10...300, step: 10)
             }
-            .navigationTitle("Add Exercise")
+            .navigationTitle(exerciseToEdit == nil ? "Add Exercise" : "Edit Exercise")
+            .onAppear {
+                if let exercise = exerciseToEdit {
+                    exerciseName = exercise.name
+                    repetitions = exercise.repetitions
+                    sets = exercise.sets
+                    restTime = exercise.restTime
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
@@ -32,15 +41,14 @@ struct AddExerciseView: View {
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        viewModel.addExercise(
-                            to: workout,
-                            name: exerciseName,
-                            repetitions: repetitions,
-                            sets: sets,
-                            restTime: restTime,
-                            modelContext: modelContext
-                        )
+                    Button(exerciseToEdit == nil ? "Save" : "Update") {
+                        if let exercise = exerciseToEdit {
+                            // Atualiza o exercício
+                            viewModel.editExercise(exercise, name: exerciseName, repetitions: repetitions, sets: sets, restTime: restTime, modelContext: modelContext)
+                        } else {
+                            // Adiciona um novo exercício
+                            viewModel.addExercise(to: workout, name: exerciseName, repetitions: repetitions, sets: sets, restTime: restTime, modelContext: modelContext)
+                        }
                         dismiss()
                     }
                     .disabled(exerciseName.isEmpty || repetitions.isEmpty)
@@ -49,12 +57,23 @@ struct AddExerciseView: View {
         }
     }
 }
-
+    
 struct AddExerciseView_Previews: PreviewProvider {
     static var previews: some View {
         let workout = Workout(name: "Sample Workout")
-        return AddExerciseView(workout: workout)
+        workout.exercises.append(Exercise(name: "Push-Ups", repetitions: "10-12", sets: 3, restTime: 60))
+
+        // Adicionar exercício
+        let addExerciseView = AddExerciseView(workout: workout)
             .environmentObject(GymViewModel())
-            .modelContainer(for: [Workout.self, Exercise.self])
+
+        // Editar exercício
+        let editExerciseView = AddExerciseView(workout: workout, exerciseToEdit: workout.exercises.first)
+            .environmentObject(GymViewModel())
+
+        return Group {
+            addExerciseView
+            editExerciseView
+        }
     }
 }
