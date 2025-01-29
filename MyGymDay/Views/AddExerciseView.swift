@@ -19,13 +19,75 @@ struct AddExerciseView: View {
 
     var body: some View {
         NavigationView {
-            Form {
-                TextField("Exercise Name", text: $exerciseName)
-                TextField("Repetitions (e.g., 8-10 or 12)", text: $repetitions)
-                Stepper("Sets: \(sets)", value: $sets, in: 1...10)
-                Stepper("Rest Time: \(restTime) seconds", value: $restTime, in: 10...300, step: 10)
+            VStack(spacing: 20) {
+                Text(exerciseToEdit == nil ? "Novo Exercício" : "Editar Exercício")
+                    .font(.title)
+                    .bold()
+                    .padding(.top, 20)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Nome do Exercício")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                    
+                    TextField("Ex: Supino Reto", text: $exerciseName)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
+                        .padding(.horizontal)
+
+                    Text("Repetições")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                    
+                    TextField("Ex: 8-10 ou 12", text: $repetitions)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
+                        .padding(.horizontal)
+
+                    Stepper(value: $sets, in: 1...10) {
+                        Text("Séries: \(sets)")
+                            .font(.headline)
+                    }
+                    .padding(.horizontal)
+
+                    Stepper(value: $restTime, in: 10...300, step: 10) {
+                        Text("Descanso: \(restTime) segundos")
+                            .font(.headline)
+                    }
+                    .padding(.horizontal)
+                }
+                .padding(.horizontal)
+
+                Spacer()
+
+                Button(action: saveExercise) {
+                    Text(exerciseToEdit == nil ? "Salvar" : "Atualizar")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(exerciseName.isEmpty || repetitions.isEmpty ? Color.gray : Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                        .shadow(radius: exerciseName.isEmpty || repetitions.isEmpty ? 0 : 5)
+                }
+                .disabled(exerciseName.isEmpty || repetitions.isEmpty)
+
+                Button("Cancelar") {
+                    dismiss()
+                }
+                .font(.headline)
+                .foregroundColor(.red)
+                .padding(.bottom, 20)
             }
-            .navigationTitle(exerciseToEdit == nil ? "Add Exercise" : "Edit Exercise")
+            .background(Color(.systemBackground))
+            .edgesIgnoringSafeArea(.bottom)
+            .onTapGesture {
+                hideKeyboard()
+            }
+            .navigationBarHidden(true)
             .onAppear {
                 if let exercise = exerciseToEdit {
                     exerciseName = exercise.name
@@ -34,40 +96,27 @@ struct AddExerciseView: View {
                     restTime = exercise.restTime
                 }
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(exerciseToEdit == nil ? "Save" : "Update") {
-                        if let exercise = exerciseToEdit {
-                            // Atualiza o exercício
-                            viewModel.editExercise(exercise, name: exerciseName, repetitions: repetitions, sets: sets, restTime: restTime, modelContext: modelContext)
-                        } else {
-                            // Adiciona um novo exercício
-                            viewModel.addExercise(to: workout, name: exerciseName, repetitions: repetitions, sets: sets, restTime: restTime, modelContext: modelContext)
-                        }
-                        dismiss()
-                    }
-                    .disabled(exerciseName.isEmpty || repetitions.isEmpty)
-                }
-            }
         }
+    }
+
+    private func saveExercise() {
+        if let exercise = exerciseToEdit {
+            viewModel.editExercise(exercise, name: exerciseName, repetitions: repetitions, sets: sets, restTime: restTime, modelContext: modelContext)
+        } else {
+            viewModel.addExercise(to: workout, name: exerciseName, repetitions: repetitions, sets: sets, restTime: restTime, modelContext: modelContext)
+        }
+        dismiss()
     }
 }
     
 struct AddExerciseView_Previews: PreviewProvider {
     static var previews: some View {
-        let workout = Workout(name: "Sample Workout")
-        workout.exercises.append(Exercise(name: "Push-Ups", repetitions: "10-12", sets: 3, restTime: 60))
+        let workout = Workout(name: "Treino de Força")
+        workout.exercises.append(Exercise(name: "Supino", repetitions: "8-10", sets: 4, restTime: 60))
 
-        // Adicionar exercício
         let addExerciseView = AddExerciseView(workout: workout)
             .environmentObject(GymViewModel())
 
-        // Editar exercício
         let editExerciseView = AddExerciseView(workout: workout, exerciseToEdit: workout.exercises.first)
             .environmentObject(GymViewModel())
 

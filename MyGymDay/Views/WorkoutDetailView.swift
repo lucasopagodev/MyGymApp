@@ -12,30 +12,80 @@ struct WorkoutDetailView: View {
     @EnvironmentObject var viewModel: GymViewModel
     @Environment(\.modelContext) private var modelContext
     @State private var isAddingExercise = false
-    @State private var isEditingExercise = false
-    @State private var selectedExercise: Exercise? = nil
+    @State private var selectedExercise: Exercise?
 
     var body: some View {
-        List {
-            ForEach(workout.exercises) { exercise in
-                VStack(alignment: .leading) {
-                    Text(exercise.name).font(.headline)
-                    Text("Reps: \(exercise.repetitions), Sets: \(exercise.sets), Rest: \(exercise.restTime)s")
+        VStack {
+            if workout.exercises.isEmpty {
+                // Mensagem quando não há exercícios
+                VStack {
+                    Image(systemName: "square.grid.2x2.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .foregroundColor(.gray.opacity(0.5))
+
+                    Text("Nenhum exercício cadastrado")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                        .padding(.top, 8)
+
+                    Text("Toque no botão abaixo para adicionar um exercício.")
                         .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
                 }
-            }
-            .onDelete { indexSet in
-                indexSet.forEach { index in
-                    let exerciseToDelete = workout.exercises[index]
-                    viewModel.deleteExercise(exerciseToDelete, modelContext: modelContext)
+                .padding()
+                .frame(maxHeight: .infinity, alignment: .center)  // Centraliza a mensagem
+            } else {
+                // Lista de exercícios
+                List {
+                    ForEach(workout.exercises) { exercise in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(exercise.name)
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                
+                                Text("Reps: \(exercise.repetitions), Sets: \(exercise.sets), Rest: \(exercise.restTime)s")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+                            }
+                            
+                            Spacer()
+                        }
+                        .padding()
+                    }
+                    .onDelete { indexSet in
+                        indexSet.forEach { index in
+                            let exerciseToDelete = workout.exercises[index]
+                            viewModel.deleteExercise(exerciseToDelete, modelContext: modelContext)
+                        }
+                    }
                 }
+                .listStyle(PlainListStyle())
             }
         }
         .navigationTitle(workout.name)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { isAddingExercise.toggle() }) {
-                    Image(systemName: "plus")
+        .safeAreaInset(edge: .bottom) {
+            // Botão flutuante para adicionar exercício
+            HStack {
+                HStack {
+                    Spacer()
+                    Button(action: { isAddingExercise.toggle() }) {
+                        Image(systemName: "plus")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24, height: 24)
+                            .padding()
+                            .background(Circle().fill(Color.green))
+                            .foregroundColor(.white)
+                            .shadow(radius: 5)
+                    }
+                    .padding()
                 }
             }
         }

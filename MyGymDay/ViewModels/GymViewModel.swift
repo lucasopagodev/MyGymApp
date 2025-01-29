@@ -63,6 +63,11 @@ class GymViewModel: ObservableObject {
         // Salva as mudanças no contexto
         saveContext(modelContext: modelContext)
     }
+    
+    func loadExercises(workout: Workout, modelContext: ModelContext) {
+            // Lógica de carregamento dos exercícios
+            exercises = workout.exercises
+        }
 
     private func saveContext(modelContext: ModelContext) {
         do {
