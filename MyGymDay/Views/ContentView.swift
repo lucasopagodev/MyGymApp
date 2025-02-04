@@ -53,11 +53,6 @@ struct ContentView: View {
                                     Spacer()
                                 }
                                 .padding()
-                                //.background(
-                                    //RoundedRectangle(cornerRadius: 10)
-                                        //.fill(Color(.systemBackground))
-                                        //.shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-                                //)
                             }
                             .padding(.vertical, 5)
                         }
@@ -77,19 +72,22 @@ struct ContentView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {  // Garante que o botão esteja acima da área segura
+                // Botão flutuante para adicionar exercício
                 HStack {
-                    Spacer()
-                    Button(action: { isAddingWorkout.toggle() }) {
-                        Image(systemName: "plus")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 24, height: 24)
-                            .padding()
-                            .background(Circle().fill(Color.green))
-                            .foregroundColor(.white)
-                            .shadow(radius: 5)
+                    HStack {
+                        Spacer()
+                        Button(action: { isAddingWorkout.toggle() }) {
+                            Image(systemName: "plus")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 24, height: 24)
+                                .padding()
+                                .background(Circle().fill(Color.green))
+                                .foregroundColor(.white)
+                                .shadow(radius: 5)
+                        }
+                        .padding()
                     }
-                    .padding()
                 }
             }
             .sheet(isPresented: $isAddingWorkout) {
@@ -105,11 +103,11 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         let viewModel = GymViewModel()
-                
+        
         // Adiciona um treino de exemplo para o preview
         let sampleWorkout = Workout(name: "Treino Superior")
-        sampleWorkout.exercises.append(Exercise(name: "Supino Reto", repetitions: "10-12", sets: 3, restTime: 60))
-        sampleWorkout.exercises.append(Exercise(name: "Rosca Direta", repetitions: "12-15", sets: 3, restTime: 45))
+        sampleWorkout.exercises.append(Exercise(name: "Supino Reto", repetitions: "10-12", sets: 3, restTime: 60, observation: "Carga 12kg", position: 1))
+        sampleWorkout.exercises.append(Exercise(name: "Rosca Direta", repetitions: "12-15", sets: 3, restTime: 45, observation: "Carga 12kg", position: 2))
 
         viewModel.workouts.append(sampleWorkout)
 

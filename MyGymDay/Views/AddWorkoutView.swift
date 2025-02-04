@@ -64,6 +64,7 @@ struct AddWorkoutView: View {
                 .foregroundColor(.red)
                 .padding(.bottom, 20)
             }
+            .padding(.bottom, safeAreaBottomInset)
             .background(Color(.systemBackground))
             .edgesIgnoringSafeArea(.bottom)
             .onTapGesture {
@@ -71,6 +72,14 @@ struct AddWorkoutView: View {
             }
             .navigationBarHidden(true) // Esconde a barra de navegação padrão
         }
+    }
+    
+    public var safeAreaBottomInset: CGFloat {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            return 0
+        }
+        return window.safeAreaInsets.bottom
     }
 
     private func saveWorkout() {

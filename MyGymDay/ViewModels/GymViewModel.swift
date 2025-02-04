@@ -9,16 +9,17 @@ import SwiftData
 
 class GymViewModel: ObservableObject {
     @Published var workouts: [Workout] = []
-    @Published var exercises: [Exercise] = []
 
+    // Carrega todos os Workouts
     func loadWorkouts(modelContext: ModelContext) {
         do {
             workouts = try modelContext.fetch(FetchDescriptor<Workout>())
         } catch {
-            print("Erro loading Workouts: \(error)")
+            print("Erro ao carregar Workouts: \(error)")
         }
     }
 
+    // Adiciona um novo Workout
     func addWorkout(name: String, modelContext: ModelContext) {
         let workout = Workout(name: name)
         modelContext.insert(workout)
@@ -26,6 +27,7 @@ class GymViewModel: ObservableObject {
         workouts.append(workout)
     }
 
+    // Remove um Workout
     func deleteWorkout(_ workout: Workout, modelContext: ModelContext) {
         modelContext.delete(workout)
         saveContext(modelContext: modelContext)
@@ -35,17 +37,20 @@ class GymViewModel: ObservableObject {
         }
     }
     
-    func addExercise(to workout: Workout, name: String, repetitions: String, sets: Int, restTime: Int, modelContext: ModelContext) {
-        let exercise = Exercise(name: name, repetitions: repetitions, sets: sets, restTime: restTime)
+    // Adiciona um Exercise a um Workout
+    func addExercise(to workout: Workout, name: String, repetitions: String, sets: Int, restTime: Int, observation: String, modelContext: ModelContext) {
+        let position = workout.exercises.count
+        let exercise = Exercise(name: name, repetitions: repetitions, sets: sets, restTime: restTime, observation: observation, position: position)
         workout.exercises.append(exercise)
-        saveContext(modelContext: modelContext)
+        saveContext(modelContext: modelContext) // Salva o contexto após adicionar o exercício
     }
 
+    // Remove um Exercise
     func deleteExercise(_ exercise: Exercise, modelContext: ModelContext) {
         modelContext.delete(exercise)
         saveContext(modelContext: modelContext)
         
-        // Removendo o exercício da lista do workout
+        // Remove o exercício da lista do Workout
         if let workout = workouts.first(where: { $0.exercises.contains(where: { $0.id == exercise.id }) }) {
             if let index = workout.exercises.firstIndex(where: { $0.id == exercise.id }) {
                 workout.exercises.remove(at: index)
@@ -53,27 +58,40 @@ class GymViewModel: ObservableObject {
         }
     }
     
-    func editExercise(_ exercise: Exercise, name: String, repetitions: String, sets: Int, restTime: Int, modelContext: ModelContext) {
-        // Atualiza os dados do exercício
+    // Edita um Exercise
+    func editExercise(_ exercise: Exercise, name: String, repetitions: String, sets: Int, restTime: Int, observation: String, modelContext: ModelContext) {
         exercise.name = name
         exercise.repetitions = repetitions
         exercise.sets = sets
         exercise.restTime = restTime
-        
-        // Salva as mudanças no contexto
+        exercise.observation = observation
+        saveContext(modelContext: modelContext) // Salva o contexto após editar o exercício
+    }
+    
+    func moveExercise(in workout: Workout, from source: IndexSet, to destination: Int, modelContext: ModelContext) {
+        workout.exercises.move(fromOffsets: source, toOffset: destination)
+        updateExerciseOrder(for: workout)
+        saveContext(modelContext: modelContext)
+    }
+
+    // Atualiza a propriedade `position` com base na nova ordem
+    private func updateExerciseOrder(for workout: Workout) {
+        for (index, exercise) in workout.exercises.enumerated() {
+            exercise.position = index
+        }
+    }
+
+    public func toggleExerciseCompletion(exercise: Exercise, modelContext: ModelContext) {
+        exercise.isCompleted.toggle()
         saveContext(modelContext: modelContext)
     }
     
-    func loadExercises(workout: Workout, modelContext: ModelContext) {
-            // Lógica de carregamento dos exercícios
-            exercises = workout.exercises
-        }
-
+    // Salva o contexto do ModelContext
     private func saveContext(modelContext: ModelContext) {
         do {
             try modelContext.save()
         } catch {
-            print("Error saving: \(error)")
+            print("Erro ao salvar contexto: \(error)")
         }
     }
 }

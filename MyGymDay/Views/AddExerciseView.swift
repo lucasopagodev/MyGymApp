@@ -13,8 +13,10 @@ struct AddExerciseView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var exerciseName = ""
     @State private var repetitions = ""
-    @State private var sets = 1
-    @State private var restTime = 30
+    @State private var sets = 3
+    @State private var restTime = 60
+    @State private var position = 1
+    @State private var observation = ""
     var exerciseToEdit: Exercise?
 
     var body: some View {
@@ -41,6 +43,16 @@ struct AddExerciseView: View {
                         .foregroundColor(.gray)
                     
                     TextField("Ex: 8-10 ou 12", text: $repetitions)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
+                        .padding(.horizontal)
+                    
+                    Text("Observação")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                    
+                    TextField("Carga 10kg", text: $observation)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding()
                         .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
@@ -82,6 +94,7 @@ struct AddExerciseView: View {
                 .foregroundColor(.red)
                 .padding(.bottom, 20)
             }
+            .padding(.bottom, safeAreaBottomInset)
             .background(Color(.systemBackground))
             .edgesIgnoringSafeArea(.bottom)
             .onTapGesture {
@@ -99,11 +112,19 @@ struct AddExerciseView: View {
         }
     }
 
+    public var safeAreaBottomInset: CGFloat {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            return 0
+        }
+        return window.safeAreaInsets.bottom
+    }
+    
     private func saveExercise() {
         if let exercise = exerciseToEdit {
-            viewModel.editExercise(exercise, name: exerciseName, repetitions: repetitions, sets: sets, restTime: restTime, modelContext: modelContext)
+            viewModel.editExercise(exercise, name: exerciseName, repetitions: repetitions, sets: sets, restTime: restTime, observation: observation, modelContext: modelContext)
         } else {
-            viewModel.addExercise(to: workout, name: exerciseName, repetitions: repetitions, sets: sets, restTime: restTime, modelContext: modelContext)
+            viewModel.addExercise(to: workout, name: exerciseName, repetitions: repetitions, sets: sets, restTime: restTime, observation: observation, modelContext: modelContext)
         }
         dismiss()
     }
@@ -112,7 +133,7 @@ struct AddExerciseView: View {
 struct AddExerciseView_Previews: PreviewProvider {
     static var previews: some View {
         let workout = Workout(name: "Treino de Força")
-        workout.exercises.append(Exercise(name: "Supino", repetitions: "8-10", sets: 4, restTime: 60))
+        workout.exercises.append(Exercise(name: "Supino", repetitions: "8-10", sets: 4, restTime: 60, observation: "Carga 10kg", position: 1))
 
         let addExerciseView = AddExerciseView(workout: workout)
             .environmentObject(GymViewModel())

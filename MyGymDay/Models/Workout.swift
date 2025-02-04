@@ -9,13 +9,14 @@ import SwiftData
 import Foundation
 
 @Model
-class Workout: Identifiable {
+class Workout: Identifiable, ObservableObject {
     @Attribute(.unique) var id: UUID
     var name: String
-    var exercises: [Exercise] = []
+    @Relationship(deleteRule: .cascade) var exercises: [Exercise]
 
     init(name: String) {
         self.id = UUID()
         self.name = name
+        self.exercises = []
     }
 }

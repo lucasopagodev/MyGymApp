@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct WorkoutDetailView: View {
-    var workout: Workout
+    @ObservedObject var workout: Workout
     @EnvironmentObject var viewModel: GymViewModel
     @Environment(\.modelContext) private var modelContext
     @State private var isAddingExercise = false
@@ -41,18 +41,37 @@ struct WorkoutDetailView: View {
             } else {
                 // Lista de exercícios
                 List {
-                    ForEach(workout.exercises) { exercise in
+                    ForEach(workout.exercises.sorted { $0.position < $1.position }) { exercise in
                         HStack {
+                            // Botão para marcar/desmarcar como feito
+                            Button(action: {
+                                viewModel.toggleExerciseCompletion(exercise: exercise, modelContext: modelContext)
+                            }) {
+                                Image(systemName: exercise.isCompleted ? "checkmark.circle.fill" : "circle")
+                                    .foregroundColor(exercise.isCompleted ? .green : .gray)
+                                    .font(.system(size: 24))
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(exercise.name)
                                     .font(.headline)
                                     .foregroundColor(.primary)
+                                    .strikethrough(exercise.isCompleted)
                                 
                                 Text("Reps: \(exercise.repetitions), Sets: \(exercise.sets), Rest: \(exercise.restTime)s")
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
                                     .lineLimit(1)
                                     .truncationMode(.tail)
+                                    .strikethrough(exercise.isCompleted)
+                                
+                                Text("Obs: \(exercise.observation)")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                    .lineLimit(2)
+                                    .truncationMode(.tail)
+                                    .strikethrough(exercise.isCompleted)
                             }
                             
                             Spacer()
@@ -65,11 +84,19 @@ struct WorkoutDetailView: View {
                             viewModel.deleteExercise(exerciseToDelete, modelContext: modelContext)
                         }
                     }
+                    .onMove { indexSet, destination in
+                        viewModel.moveExercise(in: workout, from: indexSet, to: destination, modelContext: modelContext)
+                    }
                 }
                 .listStyle(PlainListStyle())
             }
         }
         .navigationTitle(workout.name)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                EditButton() // Botão de edição para ativar o modo de arrastar
+            }
+        }
         .safeAreaInset(edge: .bottom) {
             // Botão flutuante para adicionar exercício
             HStack {
@@ -98,7 +125,8 @@ struct WorkoutDetailView: View {
 struct WorkoutDetailView_Previews: PreviewProvider {
     static var previews: some View {
         let workout = Workout(name: "Sample Workout")
-        workout.exercises.append(Exercise(name: "Push-Ups", repetitions: "10-12", sets: 3, restTime: 60))
+        workout.exercises.append(Exercise(name: "Push-Ups", repetitions: "10-12", sets: 3, restTime: 60, observation: "12kg de carga", position: 1))
+        workout.exercises.append(Exercise(name: "Push-Ups 2", repetitions: "8-12", sets: 4, restTime: 60, observation: "12kg de carga", position: 2))
         return WorkoutDetailView(workout: workout)
             .environmentObject(GymViewModel())
             .modelContainer(for: [Workout.self, Exercise.self])
