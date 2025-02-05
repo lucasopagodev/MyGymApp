@@ -11,12 +11,14 @@ struct AddExerciseView: View {
     @EnvironmentObject var viewModel: GymViewModel
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
+    
     @State private var exerciseName = ""
     @State private var repetitions = ""
     @State private var sets = 3
     @State private var restTime = 60
     @State private var position = 1
     @State private var observation = ""
+    
     var exerciseToEdit: Exercise?
 
     var body: some View {
@@ -52,11 +54,18 @@ struct AddExerciseView: View {
                         .font(.headline)
                         .foregroundColor(.gray)
                     
-                    TextField("Carga 10kg", text: $observation)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding()
-                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
+                    TextEditor(text: $observation)
+                        .frame(minHeight: 10) // Ajusta a altura mínima para um melhor uso
+                        .padding(8) // Adiciona um espaçamento interno
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6))) // Fundo semelhante ao TextField
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.gray.opacity(0.3))) // Borda sutil
                         .padding(.horizontal)
+
+//                    TextField("Carga 10kg", text: $observation)
+//                        .textFieldStyle(RoundedBorderTextFieldStyle())
+//                        .padding()
+//                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
+//                        .padding(.horizontal)
 
                     Stepper(value: $sets, in: 1...10) {
                         Text("Séries: \(sets)")
@@ -102,11 +111,13 @@ struct AddExerciseView: View {
             }
             .navigationBarHidden(true)
             .onAppear {
+                // Preenche os campos se estiver editando um exercício
                 if let exercise = exerciseToEdit {
                     exerciseName = exercise.name
                     repetitions = exercise.repetitions
                     sets = exercise.sets
                     restTime = exercise.restTime
+                    observation = exercise.observation
                 }
             }
         }

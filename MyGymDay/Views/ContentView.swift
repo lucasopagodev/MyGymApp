@@ -53,6 +53,15 @@ struct ContentView: View {
                                     Spacer()
                                 }
                                 .padding()
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    // Botão de exclusão
+                                    Button(role: .destructive) {
+                                        viewModel.deleteWorkout(workout, modelContext: modelContext)
+                                    } label: {
+                                        Label("Excluir", systemImage: "trash")
+                                    }
+
+                                }
                             }
                             .padding(.vertical, 5)
                         }
@@ -61,16 +70,12 @@ struct ContentView: View {
                                 viewModel.deleteWorkout($0, modelContext: modelContext)
                             }
                         }
+                        
                     }
                     .listStyle(PlainListStyle())
                 }
             }
             .navigationTitle("Meus Treinos")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-            }
             .safeAreaInset(edge: .bottom) {  // Garante que o botão esteja acima da área segura
                 // Botão flutuante para adicionar exercício
                 HStack {
@@ -103,16 +108,14 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         let viewModel = GymViewModel()
-        
-        // Adiciona um treino de exemplo para o preview
+
+        // Criar treino de exemplo
         let sampleWorkout = Workout(name: "Treino Superior")
-        sampleWorkout.exercises.append(Exercise(name: "Supino Reto", repetitions: "10-12", sets: 3, restTime: 60, observation: "Carga 12kg", position: 1))
-        sampleWorkout.exercises.append(Exercise(name: "Rosca Direta", repetitions: "12-15", sets: 3, restTime: 45, observation: "Carga 12kg", position: 2))
 
         viewModel.workouts.append(sampleWorkout)
 
         return ContentView()
             .environmentObject(viewModel)
-            .modelContainer(for: [Workout.self, Exercise.self])
+            .modelContainer(for: [Workout.self, Exercise.self]) // Somente se necessário
     }
 }

@@ -77,11 +77,22 @@ struct WorkoutDetailView: View {
                             Spacer()
                         }
                         .padding()
-                    }
-                    .onDelete { indexSet in
-                        indexSet.forEach { index in
-                            let exerciseToDelete = workout.exercises[index]
-                            viewModel.deleteExercise(exerciseToDelete, modelContext: modelContext)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            // Botão de exclusão
+                            Button(role: .destructive) {
+                                viewModel.deleteExercise(exercise, modelContext: modelContext)
+                            } label: {
+                                Label("Excluir", systemImage: "trash")
+                            }
+
+                            // Botão de edição
+                            Button {
+                                selectedExercise = exercise // Seleciona o exercício para edição
+                                isAddingExercise = true // Abre a tela de edição
+                            } label: {
+                                Label("Editar", systemImage: "pencil")
+                            }
+                            .tint(.green)
                         }
                     }
                     .onMove { indexSet, destination in
@@ -117,7 +128,10 @@ struct WorkoutDetailView: View {
             }
         }
         .sheet(isPresented: $isAddingExercise) {
-            AddExerciseView(workout: workout)
+            AddExerciseView(workout: workout, exerciseToEdit: selectedExercise)
+            .onDisappear {
+                selectedExercise = nil // Limpa o exercício selecionado ao fechar a tela
+            }
         }
     }
 }
