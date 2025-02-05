@@ -16,7 +16,7 @@ struct AddWorkoutView: View {
         NavigationView {
             VStack(spacing: 20) {
                 Text("Novo Treino")
-                    .font(.title)
+                    .font(.title2)
                     .bold()
                     .padding(.top, 20)
 
@@ -24,15 +24,11 @@ struct AddWorkoutView: View {
                     Text("Nome do Treino")
                         .font(.headline)
                         .foregroundColor(.gray)
-
+                    
                     TextField("Ex: Treino de Pernas", text: $workoutName)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(.systemGray6))
-                        )
-                        .padding(.horizontal)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(UIColor.systemBackground)))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.green.opacity(0.3)))
                         .submitLabel(.done)
                         .onSubmit {
                             if !workoutName.isEmpty {

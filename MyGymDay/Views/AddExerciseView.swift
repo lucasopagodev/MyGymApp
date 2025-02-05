@@ -11,107 +11,105 @@ struct AddExerciseView: View {
     @EnvironmentObject var viewModel: GymViewModel
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) var colorScheme
     
     @State private var exerciseName = ""
     @State private var repetitions = ""
     @State private var sets = 3
     @State private var restTime = 60
-    @State private var position = 1
     @State private var observation = ""
     
     var exerciseToEdit: Exercise?
-
+    
     var body: some View {
         NavigationView {
-            VStack(spacing: 20) {
-                Text(exerciseToEdit == nil ? "Novo Exercício" : "Editar Exercício")
-                    .font(.title)
-                    .bold()
-                    .padding(.top, 20)
-
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Nome do Exercício")
-                        .font(.headline)
-                        .foregroundColor(.gray)
-                    
-                    TextField("Ex: Supino Reto", text: $exerciseName)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding()
-                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
-                        .padding(.horizontal)
-
-                    Text("Repetições")
-                        .font(.headline)
-                        .foregroundColor(.gray)
-                    
-                    TextField("Ex: 8-10 ou 12", text: $repetitions)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding()
-                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
-                        .padding(.horizontal)
-                    
-                    Text("Observação")
-                        .font(.headline)
-                        .foregroundColor(.gray)
-                    
-                    TextEditor(text: $observation)
-                        .frame(minHeight: 10) // Ajusta a altura mínima para um melhor uso
-                        .padding(8) // Adiciona um espaçamento interno
-                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6))) // Fundo semelhante ao TextField
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.gray.opacity(0.3))) // Borda sutil
-                        .padding(.horizontal)
-
-//                    TextField("Carga 10kg", text: $observation)
-//                        .textFieldStyle(RoundedBorderTextFieldStyle())
-//                        .padding()
-//                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
-//                        .padding(.horizontal)
-
-                    Stepper(value: $sets, in: 1...10) {
-                        Text("Séries: \(sets)")
+            VStack {
+                ScrollView {
+                    Text(exerciseToEdit == nil ? "Novo Exercício" : "Atualizar Exercício")
+                        .font(.title2)
+                        .bold()
+                        .padding(.top, 20)
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Nome do Exercício")
                             .font(.headline)
-                    }
-                    .padding(.horizontal)
+                            .foregroundColor(.gray)
+                        TextField("Ex: Supino Reto", text: $exerciseName)
+                            .padding()
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Color(UIColor.systemBackground)))
+                            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.green.opacity(0.3)))
 
-                    Stepper(value: $restTime, in: 10...300, step: 10) {
-                        Text("Descanso: \(restTime) segundos")
+                        Text("Repetições")
                             .font(.headline)
-                    }
-                    .padding(.horizontal)
-                }
-                .padding(.horizontal)
-
-                Spacer()
-
-                Button(action: saveExercise) {
-                    Text(exerciseToEdit == nil ? "Salvar" : "Atualizar")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
+                            .foregroundColor(.gray)
+                        TextField("Ex: 8-10 ou 12", text: $repetitions)
+                            .padding()
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Color(UIColor.systemBackground)))
+                            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.green.opacity(0.3)))
+                        
+                        Text("Séries")
+                            .font(.headline)
+                            .foregroundColor(.gray)
+                        Stepper(value: $sets, in: 1...10) {
+                            Text("\(sets) séries")
+                                .font(.headline)
+                        }
                         .padding()
-                        .background(exerciseName.isEmpty || repetitions.isEmpty ? Color.gray : Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                        .padding(.horizontal)
-                        .shadow(radius: exerciseName.isEmpty || repetitions.isEmpty ? 0 : 5)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(UIColor.systemBackground)))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.green.opacity(0.3)))
+                        
+                        Text("Descanso (segundos)")
+                            .font(.headline)
+                            .foregroundColor(.gray)
+                        Stepper(value: $restTime, in: 10...300, step: 10) {
+                            Text("\(restTime) segundos")
+                                .font(.headline)
+                        }
+                        .padding()
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(UIColor.systemBackground)))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.green.opacity(0.3)))
+                        
+                        Text("Observação")
+                            .font(.headline)
+                            .foregroundColor(.gray)
+                        TextEditor(text: $observation)
+                            .frame(minHeight: 100)
+                            .padding()
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Color(UIColor.systemBackground)))
+                            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.green.opacity(0.3)))
+                    }
+                    .padding()
                 }
-                .disabled(exerciseName.isEmpty || repetitions.isEmpty)
-
-                Button("Cancelar") {
-                    dismiss()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(UIColor.systemBackground))
+                
+                VStack(spacing: 12) {
+                    Button(action: saveExercise) {
+                        Text(exerciseToEdit == nil ? "Salvar" : "Atualizar")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(exerciseName.isEmpty || repetitions.isEmpty ? Color.gray : Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            .shadow(radius: exerciseName.isEmpty || repetitions.isEmpty ? 0 : 5)
+                    }
+                    .disabled(exerciseName.isEmpty || repetitions.isEmpty)
+                    
+                    Button("Cancelar") {
+                        dismiss()
+                    }
+                    .font(.headline)
+                    .foregroundColor(.red)
+                    .padding(.bottom, 20)
                 }
-                .font(.headline)
-                .foregroundColor(.red)
-                .padding(.bottom, 20)
+                .padding()
+                .background(Color(UIColor.systemBackground))
             }
-            .padding(.bottom, safeAreaBottomInset)
-            .background(Color(.systemBackground))
-            .edgesIgnoringSafeArea(.bottom)
-            .onTapGesture {
-                hideKeyboard()
-            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(UIColor.systemBackground).ignoresSafeArea())
+            .navigationTitle(exerciseToEdit == nil ? "Novo Exercício" : "Editar Exercício")
             .navigationBarHidden(true)
             .onAppear {
-                // Preenche os campos se estiver editando um exercício
                 if let exercise = exerciseToEdit {
                     exerciseName = exercise.name
                     repetitions = exercise.repetitions
@@ -121,14 +119,6 @@ struct AddExerciseView: View {
                 }
             }
         }
-    }
-
-    public var safeAreaBottomInset: CGFloat {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else {
-            return 0
-        }
-        return window.safeAreaInsets.bottom
     }
     
     private func saveExercise() {
@@ -140,21 +130,12 @@ struct AddExerciseView: View {
         dismiss()
     }
 }
-    
+
 struct AddExerciseView_Previews: PreviewProvider {
     static var previews: some View {
         let workout = Workout(name: "Treino de Força")
-        workout.exercises.append(Exercise(name: "Supino", repetitions: "8-10", sets: 4, restTime: 60, observation: "Carga 10kg", position: 1))
-
-        let addExerciseView = AddExerciseView(workout: workout)
+        let view = AddExerciseView(workout: workout)
             .environmentObject(GymViewModel())
-
-        let editExerciseView = AddExerciseView(workout: workout, exerciseToEdit: workout.exercises.first)
-            .environmentObject(GymViewModel())
-
-        return Group {
-            addExerciseView
-            editExerciseView
-        }
+        return view
     }
 }
