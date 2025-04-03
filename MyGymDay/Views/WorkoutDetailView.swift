@@ -133,6 +133,19 @@ struct WorkoutDetailView: View {
                 selectedExercise = nil // Limpa o exercício selecionado ao fechar a tela
             }
         }
+        // Botão para registrar o treino
+        Button(action: {
+            viewModel.registerWorkout(workout: workout, modelContext: modelContext)
+        }) {
+            Text("Registrar Treino")
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .cornerRadius(10)
+        }
+        .padding()
     }
 }
 

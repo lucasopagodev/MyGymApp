@@ -13,10 +13,12 @@ class Workout: Identifiable, ObservableObject {
     @Attribute(.unique) var id: UUID
     var name: String
     @Relationship(deleteRule: .cascade) var exercises: [Exercise]
-
-    init(name: String) {
+    var date: Date
+    
+    init(name: String, date: Date = Date()) {
         self.id = UUID()
         self.name = name
         self.exercises = []
+        self.date = date
     }
 }

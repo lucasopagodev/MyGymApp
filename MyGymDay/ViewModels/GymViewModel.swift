@@ -9,6 +9,7 @@ import SwiftData
 
 class GymViewModel: ObservableObject {
     @Published var workouts: [Workout] = []
+    @Published var workoutLogs: [WorkoutLog] = []
 
     // Carrega todos os Workouts
     func loadWorkouts(modelContext: ModelContext) {
@@ -56,6 +57,16 @@ class GymViewModel: ObservableObject {
                 workout.exercises.remove(at: index)
             }
         }
+    }
+    
+    func registerWorkout(workout: Workout, modelContext: ModelContext) {
+        let workoutLog = WorkoutLog(date: Date(), workout: workout)
+        workoutLogs.append(workoutLog)
+        modelContext.insert(workoutLog)
+    }
+    
+    func hasWorkout(on date: Date) -> Bool {
+        return workoutLogs.contains { Calendar.current.isDate($0.date, inSameDayAs: date) }
     }
     
     // Edita um Exercise
